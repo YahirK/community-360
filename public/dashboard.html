@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" id="metaThemeColor" content="#f6f6f2">
+  <title>Panel Analítico | Community 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    (function () {
+      const saved = localStorage.getItem('c360_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      const meta = document.getElementById('metaThemeColor');
+      if (meta) meta.setAttribute('content', saved === 'dark' ? '#0e1514' : '#f6f6f2');
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    if (!getToken()) {
+      window.location.replace('/login.html');
+    }
+    const authPromise = requireAuth();
+  </script>
+</head>
+<body class="auth-checking">
+  <a href="#mainContent" class="skip-link">Saltar al contenido principal</a>
+
+  <!-- Estado de carga mientras se valida la sesión -->
+  <div class="auth-loader" role="status" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <span>Verificando sesión…</span>
+  </div>
+
+  <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="nav-logo" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 20V10"></path>
+          <path d="M18 20V4"></path>
+          <path d="M6 20v-6"></path>
+        </svg>
+      </div>
+      <h2 translate="no">Community&nbsp;360</h2>
+      <span class="nav-divider" aria-hidden="true"></span>
+      <span class="badge">Observatorio Analítico</span>
+    </div>
+
+    <div class="nav-user">
+      <button type="button" id="themeToggle" class="btn-theme" title="Cambiar modo claro u oscuro" aria-label="Cambiar modo claro u oscuro">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+
+      <div class="user-chip">
+        <span class="user-avatar" id="userAvatar" aria-hidden="true">A</span>
+        <div class="user-info">
+          <strong id="displayUsername" translate="no">Cargando…</strong>
+          <small>Administrador</small>
+        </div>
+      </div>
+
+      <button type="button" class="btn-logout" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Cerrar Sesión
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE CON MENÚ LATERAL Y VISTAS SECCIONADAS -->
+  <div class="app-workspace">
+    <aside class="workspace-sidebar">
+      <div>
+        <div class="sidebar-group-label">Secciones del observatorio</div>
+        <nav class="sidebar-nav" aria-label="Vistas del panel analítico">
+          <button type="button" class="nav-tab-btn active" data-view="vista-pulso">
+            <span class="nav-tab-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <span>Pulso en Vivo</span>
+            </span>
+          </button>
+
+          <button type="button" class="nav-tab-btn" data-view="vista-flujo">
+            <span class="nav-tab-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>Mapa &amp; Flujo</span>
+            </span>
+            <span class="nav-live-badge" id="badgeFlujo" aria-label="Nuevos eventos en vivo">0</span>
+          </button>
+
+          <button type="button" class="nav-tab-btn" data-view="vista-comunidad">
+            <span class="nav-tab-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Salud &amp; Comunidad</span>
+            </span>
+          </button>
+
+          <button type="button" class="nav-tab-btn" data-view="vista-regiones">
+            <span class="nav-tab-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <span>Alcance por Países</span>
+            </span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-status-box" role="status" aria-live="polite">
+        <div class="status-indicator">
+          <span id="socketDot" class="dot" aria-hidden="true"></span>
+          <span id="socketStatus">Conectando…</span>
+        </div>
+        <small id="lastUpdateText">Sincronizando datos…</small>
+      </div>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO SECCIONADO -->
+    <main id="mainContent" class="workspace-content" tabindex="-1">
+      <!-- ==================== VISTA 1: PULSO EN VIVO ==================== -->
+      <section id="vista-pulso" class="view-panel active">
+        <div class="hero-bar">
+          <div class="hero-title">
+            <h1>Pulso Operativo en Tiempo Real</h1>
+            <p>Clima emocional, volumen de participación y alcance activo de la comunidad</p>
+          </div>
+          <span class="section-pill pill-live">Transmisión en vivo</span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card live-kpi">
+            <span class="kpi-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </span>
+            <span class="kpi-label">Interacciones válidas</span>
+            <div class="kpi-value" id="kpiTotalInteracciones">—</div>
+            <span class="kpi-caption caption-indigo">Eventos procesados</span>
+          </div>
+
+          <div class="kpi-card live-kpi">
+            <span class="kpi-icon icon-emerald" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+            </span>
+            <span class="kpi-label">Sentimiento promedio</span>
+            <div class="kpi-value" id="kpiSentimientoPromedio">—</div>
+            <span class="kpi-caption caption-emerald" id="kpiSentimientoCaption">Clima emocional</span>
+          </div>
+
+          <div class="kpi-card live-kpi">
+            <span class="kpi-icon icon-violet" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
+            <span class="kpi-label">Participación por miembro</span>
+            <div class="kpi-value" id="kpiTasaInteraccion">—</div>
+            <span class="kpi-caption caption-violet">Actividad por cuenta</span>
+          </div>
+
+          <div class="kpi-card live-kpi">
+            <span class="kpi-icon icon-amber" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </span>
+            <span class="kpi-label">Reacciones promedio</span>
+            <div class="kpi-value" id="kpiPromedioReacciones">—</div>
+            <span class="kpi-caption caption-amber">Impacto por publicación</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon icon-sky" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </span>
+            <span class="kpi-label">Padrón de miembros</span>
+            <div class="kpi-value" id="kpiTotalUsuarios">—</div>
+            <span class="kpi-caption caption-sky">Comunidad verificada</span>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Balance de Sentimiento</div>
+                <div class="chart-subtitle">Proporción de interacciones positivas, neutras y negativas</div>
+              </div>
+              <span class="chart-tag">Tiempo real</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartSentimiento" aria-label="Gráfica de balance de sentimiento"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Volumen por Tipo de Actividad</div>
+                <div class="chart-subtitle">Distribución según el formato de participación</div>
+              </div>
+              <span class="chart-tag">Formatos</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartTipos" aria-label="Gráfica de volumen por tipo de actividad"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Participación por Canal Social</div>
+                <div class="chart-subtitle">Concentración de conversaciones en cada plataforma</div>
+              </div>
+              <span class="chart-tag">Canales</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartCanales" aria-label="Gráfica de participación por canal social"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 2: MAPA DE INTENSIDAD Y FLUJO EN VIVO ==================== -->
+      <section id="vista-flujo" class="view-panel">
+        <div class="hero-bar">
+          <div class="hero-title">
+            <h1>Mapa Multicanal &amp; Actividad Reciente</h1>
+            <p>Cruce de intensidad por plataforma y cronología en vivo de las últimas interacciones</p>
+          </div>
+          <span class="section-pill pill-live">Sincronización activa</span>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card full-width">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Mapa de Intensidad Multicanal</div>
+                <div class="chart-subtitle">Concentración cruzada de actividad por red social y formato de interacción</div>
+              </div>
+              <div class="heatmap-legend">
+                <span>Menor</span>
+                <span class="legend-scale" aria-hidden="true"></span>
+                <span>Mayor actividad</span>
+              </div>
+            </div>
+            <div class="table-responsive" id="heatmapContainer">
+              <p style="color: var(--text-muted); text-align: center;">Cargando mapa de actividad…</p>
+            </div>
+          </div>
+
+          <div class="chart-card full-width">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Flujo de Actividad Reciente</div>
+                <div class="chart-subtitle">Últimas interacciones registradas y actualizadas al instante</div>
+              </div>
+              <span class="chart-tag">15 recientes</span>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Evento</th>
+                    <th>Miembro</th>
+                    <th>Canal</th>
+                    <th>Formato</th>
+                    <th>Sentimiento</th>
+                    <th>Reacciones</th>
+                    <th>Ubicación y detalle</th>
+                  </tr>
+                </thead>
+                <tbody id="recentInteractionsBody">
+                  <tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Cargando actividad reciente…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 3: SALUD DE RETENCIÓN Y DEMOGRAFÍA ==================== -->
+      <section id="vista-comunidad" class="view-panel">
+        <div class="hero-bar">
+          <div class="hero-title">
+            <h1>Salud de Retención &amp; Perfil Comunitario</h1>
+            <p>Seguimiento de permanencia, cuentas en riesgo, rangos de edad e intereses culturales</p>
+          </div>
+          <span class="section-pill pill-rest">Datos consolidados</span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-icon icon-amber" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </span>
+            <span class="kpi-label">Usuarios en riesgo</span>
+            <div class="kpi-value text-warning" id="kpiUsuariosEnRiesgo">—</div>
+            <span class="kpi-caption caption-amber" id="kpiPorcentajeRiesgo">Seguimiento prioritario</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon icon-emerald" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </span>
+            <span class="kpi-label">Usuarios activos</span>
+            <div class="kpi-value text-success" id="kpiUsuariosActivos">—</div>
+            <span class="kpi-caption caption-emerald">Participación constante</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon icon-rose" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 16"></polyline>
+              </svg>
+            </span>
+            <span class="kpi-label">Usuarios inactivos</span>
+            <div class="kpi-value" id="kpiUsuariosInactivos">—</div>
+            <span class="kpi-caption">Sin actividad reciente</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon icon-violet" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="M2 2l7.586 7.586"></path>
+                <circle cx="11" cy="11" r="2"></circle>
+              </svg>
+            </span>
+            <span class="kpi-label">Creadores digitales</span>
+            <div class="kpi-value" id="kpiTotalArtistas">—</div>
+            <span class="kpi-caption caption-violet">Perfiles creativos activos</span>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Estado de Retención de Miembros</div>
+                <div class="chart-subtitle">Proporción de cuentas activas, en riesgo e inactivas</div>
+              </div>
+              <span class="chart-tag">Retención</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartEstatus" aria-label="Gráfica de retención de miembros"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Adopción por Plataforma Principal</div>
+                <div class="chart-subtitle">Red primaria preferida por los miembros registrados</div>
+              </div>
+              <span class="chart-tag">Plataformas</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartPlataformas" aria-label="Gráfica de plataformas principales"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Estructura por Rango de Edad</div>
+                <div class="chart-subtitle">Composición demográfica de la comunidad</div>
+              </div>
+              <span class="chart-tag">Demografía</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartEdades" aria-label="Gráfica de rangos de edad"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Áreas de Interés Cultural &amp; Digital</div>
+                <div class="chart-subtitle">Afinidades temáticas principales de los miembros</div>
+              </div>
+              <span class="chart-tag">Intereses</span>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="chartIntereses" aria-label="Gráfica de áreas de interés"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== VISTA 4: ALCANCE POR PAÍSES Y SEDES ==================== -->
+      <section id="vista-regiones" class="view-panel">
+        <div class="hero-bar">
+          <div class="hero-title">
+            <h1>Presencia Internacional &amp; Nodos Regionales</h1>
+            <p>Distribución territorial de miembros con consentimiento de privacidad activo por país, ciudad y huso horario</p>
+          </div>
+          <span class="section-pill pill-rest">Privacidad verificada</span>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-icon icon-sky" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </span>
+            <span class="kpi-label">Países con presencia</span>
+            <div class="kpi-value" id="kpiTotalPaises">—</div>
+            <span class="kpi-caption caption-sky">Mercados activos</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </span>
+            <span class="kpi-label">Ciudades conectadas</span>
+            <div class="kpi-value" id="kpiTotalCiudades">—</div>
+            <span class="kpi-caption caption-indigo">Nodos urbanos</span>
+          </div>
+
+          <div class="kpi-card">
+            <span class="kpi-icon icon-emerald" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </span>
+            <span class="kpi-label">Ubicación compartida</span>
+            <div class="kpi-value text-success" id="kpiConConsentimiento">—</div>
+            <span class="kpi-caption caption-emerald" id="kpiConsentimientoPct">Autorización expresa</span>
+          </div>
+        </div>
+
+        <div class="regional-layout">
+          <!-- Explorador interactivo por país (botones accesibles por teclado) -->
+          <div class="chart-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Participación Territorial por País</div>
+                <div class="chart-subtitle">Selecciona un país para filtrar sus ciudades activas</div>
+              </div>
+              <span class="chart-tag">Cuota regional</span>
+            </div>
+            <div id="countriesExplorer" class="country-list">
+              <p style="color:var(--text-muted); text-align:center;">Cargando distribución por países…</p>
+            </div>
+          </div>
+
+          <!-- Rosa Polar Chart.js 4 centrada y compacta -->
+          <div class="chart-card polar-card">
+            <div class="chart-head">
+              <div>
+                <div class="chart-title">Rosa Polar de Principales Sedes Urbanas</div>
+                <div class="chart-subtitle">Proporción comparativa de las 8 ciudades con mayor comunidad</div>
+              </div>
+              <span class="chart-tag">8 sedes clave</span>
+            </div>
+            <div class="polar-card-body">
+              <div class="polar-canvas-box">
+                <canvas id="chartPolarRegiones" aria-label="Rosa polar de las 8 principales ciudades"></canvas>
+              </div>
+              <div id="polarLegendGrid" class="polar-legend-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Directorio filtrable de ciudades y husos horarios -->
+        <div class="chart-card full-width">
+          <div class="chart-head">
+            <div>
+              <div class="chart-title">Directorio de Nodos Urbanos &amp; Zonas Horarias</div>
+              <div class="chart-subtitle">Detalle de presencia local y huso horario operativo por ciudad</div>
+            </div>
+            <span class="chart-tag" id="citiesCountBadge">Todas las sedes</span>
+          </div>
+          <div id="countryFilterBar" class="filter-pills" role="group" aria-label="Filtrar ciudades por país"></div>
+          <div id="citiesHubGrid" class="cities-grid"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="dashboard-footer">
+    © 2026 <span translate="no">Community&nbsp;360</span> • Observatorio de Inteligencia y Analítica Comunitaria
+  </footer>
+
+  <!-- Contenedor de notificaciones Toast en tiempo real accesible -->
+  <div id="toastContainer" class="toast-container" role="status" aria-live="polite"></div>
+
+  <script src="/js/dashboard.js"></script>
+  <script>
+    authPromise.then((isAuth) => {
+      if (isAuth) {
+        initDashboard();
+      }
+    });
+  </script>
+</body>
+</html>

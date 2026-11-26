@@ -1,0 +1,99 @@
+{
+  "lote_id": "lote_20261120050401",
+  "version_script": "1.0.0",
+  "pasos": [
+    {
+      "etapa": 1,
+      "archivo": "comunidad_virtual_usuarios.csv",
+      "leidos": 1068,
+      "duplicados_por_id": 0,
+      "duplicados_por_alias": 0,
+      "duplicados_por_contenido": 0,
+      "conservados": 1068
+    },
+    {
+      "etapa": 1,
+      "archivo": "comunidad_virtual_1000_interacciones.csv",
+      "leidos": 1000,
+      "duplicados_por_id": 0,
+      "duplicados_por_alias": 0,
+      "duplicados_por_contenido": 0,
+      "conservados": 1000
+    },
+    {
+      "etapa": 2,
+      "archivo": "comunidad_virtual_usuarios.csv",
+      "nulos_por_campo": {
+        "latitud": 275,
+        "longitud": 275
+      }
+    },
+    {
+      "etapa": 2,
+      "archivo": "comunidad_virtual_1000_interacciones.csv",
+      "nulos_por_campo": {
+        "etiquetas": 231,
+        "texto": 144,
+        "pais": 173,
+        "estado": 173,
+        "ciudad": 173
+      }
+    },
+    {
+      "etapa": 3,
+      "archivo": "comunidad_virtual_usuarios.csv",
+      "fechas_dd_mm_aaaa_a_iso": 2136
+    },
+    {
+      "etapa": 3,
+      "archivo": "comunidad_virtual_1000_interacciones.csv",
+      "timestamps_normalizados_a_utc": 0,
+      "filas_con_etiquetas_separadas": 769
+    },
+    {
+      "etapa": 4,
+      "archivo": "comunidad_virtual_usuarios.csv",
+      "validos": 1068,
+      "rechazados_valor_invalido": 0,
+      "campos_invalidos": {}
+    },
+    {
+      "etapa": 4,
+      "archivo": "comunidad_virtual_1000_interacciones.csv",
+      "validos": 1000,
+      "rechazados_valor_invalido": 0,
+      "campos_invalidos": {}
+    },
+    {
+      "etapa": 5,
+      "interacciones_revisadas": 1000,
+      "huerfanas_a_cuarentena": 793,
+      "huerfanas_con_ubicacion_eliminada": 646,
+      "interacciones_validas": 207,
+      "usuarios_distintos_con_interacciones": 136
+    },
+    {
+      "etapa": 6,
+      "usuarios_sin_consentimiento_depurados": 171,
+      "campos_geograficos_anulados": 684,
+      "interacciones_de_esos_usuarios": 26,
+      "interacciones_con_ubicacion_eliminada_en_esta_etapa": 0
+    }
+  ],
+  "ejecutado_en": "2026-11-20T05:04:01.449Z",
+  "resumen": {
+    "usuarios": {
+      "recibidos": 1068,
+      "aceptados": 1068
+    },
+    "interacciones": {
+      "recibidas": 1000,
+      "aceptadas": 207
+    },
+    "rechazados_total": 793,
+    "cuarentena_por_motivo": {
+      "usuario_inexistente": 793
+    },
+    "atipicos_marcados": 3
+  }
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" id="metaThemeColor" content="#f6f6f2">
+  <title>Iniciar Sesión | Community 360</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    (function () {
+      const saved = localStorage.getItem('c360_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', saved);
+      const meta = document.getElementById('metaThemeColor');
+      if (meta) meta.setAttribute('content', saved === 'dark' ? '#0e1514' : '#f6f6f2');
+    })();
+  </script>
+  <script src="/js/auth.js"></script>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-shell">
+      <!-- Panel editorial izquierdo -->
+      <aside class="login-showcase">
+        <div>
+          <div class="showcase-brand" translate="no">
+            <div class="brand-mark" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 20V10"></path>
+                <path d="M18 20V4"></path>
+                <path d="M6 20v-6"></path>
+              </svg>
+            </div>
+            <span>Community&nbsp;360</span>
+          </div>
+
+          <div class="showcase-copy">
+            <h2>Observatorio analítico de participación y cultura digital</h2>
+            <p>Consulta el clima emocional, la actividad por plataforma y la permanencia de la comunidad desde un entorno unificado en tiempo real.</p>
+          </div>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="feature-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <div>
+                <strong>Lectura continua en vivo</strong>
+                <span>Los indicadores, mapas de actividad y registros entrantes se actualizan sin recargar la vista.</span>
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div>
+                <strong>Permanencia y demografía</strong>
+                <span>Identifica cuentas en riesgo de abandono, afinidades creativas y presencia regional.</span>
+              </div>
+            </div>
+
+            <div class="feature-item">
+              <div class="feature-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <div>
+                <strong>Privacidad por diseño</strong>
+                <span>Respeta el consentimiento geográfico de cada miembro y audita cada cambio registrado.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="showcase-meta">
+          <span>Observatorio de Comunidad</span>
+          <span>Conexión cifrada TLS</span>
+        </div>
+      </aside>
+
+      <!-- Panel derecho de inicio de sesión -->
+      <main class="login-card">
+        <div class="login-top-actions">
+          <span class="login-badge">Acceso administrativo</span>
+          <button type="button" id="themeToggle" class="btn-theme" title="Cambiar modo de color" aria-label="Cambiar modo claro u oscuro">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <div class="login-header">
+          <h1>Iniciar sesión</h1>
+          <p>Ingresa tu usuario y contraseña para abrir el panel analítico</p>
+        </div>
+
+        <div id="alertBox" class="alert" role="alert" aria-live="polite"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="usuario">Usuario</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="usuario"
+                name="usuario"
+                autocomplete="username"
+                spellcheck="false"
+                autocapitalize="none"
+                placeholder="Ej. lizandro.reyes…"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="Ingresa tu contraseña…"
+                required
+              >
+              <button type="button" id="togglePwd" class="btn-toggle-pwd" aria-label="Mostrar u ocultar contraseña">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" id="btnSubmit" class="btn-submit">
+            <span id="btnText">Entrar al Panel</span>
+          </button>
+        </form>
+
+        <div class="login-footer">
+          © 2026 <span translate="no">Community&nbsp;360</span> • Plataforma de Inteligencia Comunitaria
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    redirectIfAuth();
+
+    const loginForm = document.getElementById('loginForm');
+    const alertBox = document.getElementById('alertBox');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const btnText = document.getElementById('btnText');
+    const userInput = document.getElementById('usuario');
+    const pwdInput = document.getElementById('password');
+    const togglePwd = document.getElementById('togglePwd');
+    const themeToggle = document.getElementById('themeToggle');
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('c360_theme', next);
+      const meta = document.getElementById('metaThemeColor');
+      if (meta) meta.setAttribute('content', next === 'dark' ? '#0e1514' : '#f6f6f2');
+    });
+
+    togglePwd.addEventListener('click', () => {
+      pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+    });
+
+    function showAlert(message, type = 'danger') {
+      alertBox.textContent = message;
+      alertBox.className = `alert alert-${type}`;
+      alertBox.style.display = 'block';
+    }
+
+    function hideAlert() {
+      alertBox.style.display = 'none';
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlert();
+
+      const usuario = userInput.value.trim();
+      const password = pwdInput.value;
+
+      if (!usuario) {
+        showAlert('Escribe tu nombre de usuario para continuar.');
+        userInput.focus();
+        return;
+      }
+      if (!password) {
+        showAlert('Escribe tu contraseña para continuar.');
+        pwdInput.focus();
+        return;
+      }
+
+      if (window.location.protocol === 'file:') {
+        showAlert('Inicia el servidor con "npm start" y abre http://localhost:3000/login.html en tu navegador.');
+        return;
+      }
+
+      btnSubmit.disabled = true;
+      btnText.textContent = 'Verificando credenciales…';
+
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ usuario, password }),
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+          showAlert('El servidor API no respondió en este puerto. Ejecuta "npm start" y abre http://localhost:3000/login.html.');
+          btnSubmit.disabled = false;
+          btnText.textContent = 'Entrar al Panel';
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          showAlert(data.message || 'Revisa tu usuario y contraseña e inténtalo de nuevo.');
+          btnSubmit.disabled = false;
+          btnText.textContent = 'Entrar al Panel';
+          pwdInput.focus();
+          return;
+        }
+
+        showAlert('Acceso confirmado. Abriendo panel…', 'success');
+        setSession(data.token, data.usuario);
+
+        setTimeout(() => {
+          window.location.replace('/dashboard.html');
+        }, 450);
+      } catch (err) {
+        console.error('Error de red al iniciar sesión:', err);
+        showAlert('No se pudo conectar con el servidor. Verifica que "npm start" esté en ejecución.');
+        btnSubmit.disabled = false;
+        btnText.textContent = 'Entrar al Panel';
+      }
+    });
+  </script>
+</body>
+</html>

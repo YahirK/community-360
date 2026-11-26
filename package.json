@@ -1,0 +1,32 @@
+{
+  "name": "community-360",
+  "version": "1.0.0",
+  "description": "Plataforma de Inteligencia y Analítica Comunitaria en Tiempo Real (TiDB Cloud + Cloud Firestore + Socket.io)",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "etl": "node src/etl.js",
+    "load": "node src/load.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "csv-parse": "^7.0.3",
+    "csv-stringify": "^6.9.0",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.5",
+    "firebase-admin": "^14.5.1",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.6",
+    "socket.io": "^4.8.4"
+  }
+}

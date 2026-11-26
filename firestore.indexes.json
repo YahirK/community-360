@@ -1,0 +1,53 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "interacciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "id_usuario", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interacciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "canal", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interacciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tipo", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interacciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "tema", "order": "ASCENDING" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "interacciones",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "etiquetas", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "timestamp", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "auditoria_cambios",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "id_interaccion", "order": "ASCENDING" },
+        { "fieldPath": "fecha", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

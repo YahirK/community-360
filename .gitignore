@@ -1,0 +1,5 @@
+.env
+secrets/
+node_modules/
+modificaciones.md
+RESUMEN_PROYECTO_COMPLETO.md
